@@ -24,7 +24,18 @@ class wikiMarkupInput extends eZSimplifiedXMLInput
             $parser = new wikiMarkupInputParser();
             $document = $parser->process( $text );
 
-            // TODO validation
+            if ( $contentObjectAttribute->validateIsRequired() )
+            {
+                $root = $document->documentElement;
+                if ( $root->childNodes->length == 0 )
+                {
+                    $contentObjectAttribute->setValidationError( ezi18n( 'kernel/classes/datatypes',
+                                                                         'Content required' ) );
+                    return eZInputValidator::STATE_INVALID;
+                }
+            }
+
+            // TODO manage relations
 
             $xmlString = eZXMLTextType::domString( $document );
             eZDebug::writeDebug( $xmlString, 'Result of wikiMarkupInputParser()->process()' );
@@ -36,9 +47,9 @@ class wikiMarkupInput extends eZSimplifiedXMLInput
         {
             return eZInputValidator::STATE_ACCEPTED;
         }
-
-
     }
+
+
 
     function customObjectAttributeHTTPAction( $http, $action, $contentObjectAttribute )
     {
